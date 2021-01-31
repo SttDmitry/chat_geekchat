@@ -17,7 +17,7 @@ public class Server {
 
     public Server() {
         clients = new CopyOnWriteArrayList<>();
-        authService = new SimpleAuthService();
+        authService = new DataBaseAuthService();
 
         try {
             server = new ServerSocket(PORT);
