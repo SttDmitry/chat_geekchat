@@ -2,9 +2,7 @@ package server;
 
 import commands.Command;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
@@ -15,8 +13,11 @@ public class ClientHandler {
     private DataOutputStream out;
     private String nickname;
     private String login;
+    private FileInputStream inStr;
+    private FileOutputStream outStr;
 
     public ClientHandler(Server server, Socket socket) {
+
         try {
             this.server = server;
             this.socket = socket;
@@ -41,6 +42,10 @@ public class ClientHandler {
                                     sendMsg(Command.AUTH_OK + " " + nickname);
                                     server.subscribe(this);
                                     System.out.println("client " + nickname + " connected " + socket.getRemoteSocketAddress());
+                                    socket.setSoTimeout(0);
+                                    //
+                                    sendMsg(new SimpleAuthService().getMessageForNick(nickname));
+                                    //
                                     break;
                                 } else {
                                     sendMsg("С этим логином уже авторизовались");

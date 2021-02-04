@@ -2,6 +2,9 @@ package server;
 
 import commands.Command;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,10 +17,13 @@ public class Server {
     private final int PORT = 8189;
     private List<ClientHandler> clients;
     private AuthService authService;
+    private BufferedWriter writer;
 
     public Server() {
         clients = new CopyOnWriteArrayList<>();
-        authService = new DataBaseAuthService();
+//        authService = new DataBaseAuthService();
+        authService = new SimpleAuthService();
+
 
         try {
             server = new ServerSocket(PORT);
@@ -40,19 +46,23 @@ public class Server {
         }
     }
 
-    public void broadcastMsg(ClientHandler clientHandler, String msg) {
+    public void broadcastMsg(ClientHandler clientHandler, String msg) throws IOException {
         String message = String.format("[ %s ]: %s", clientHandler.getNickname(), msg);
+        File file;
         for (ClientHandler c : clients) {
+            logMessage(c.getLogin(), message);
             c.sendMsg(message);
         }
     }
 
-    public void privateMsg(ClientHandler sender, String receiver, String msg) {
+    public void privateMsg(ClientHandler sender, String receiver, String msg) throws IOException {
         String message = String.format("[ %s ] to [ %s ]: %s", sender.getNickname(), receiver, msg);
         for (ClientHandler c : clients) {
             if (c.getNickname().equals(receiver)) {
+                logMessage(c.getLogin(), message);
                 c.sendMsg(message);
                 if (!c.equals(sender)) {
+                    logMessage(sender.getLogin(), message);
                     sender.sendMsg(message);
                 }
                 return;
@@ -96,5 +106,13 @@ public class Server {
         for (ClientHandler c : clients) {
             c.sendMsg(msg);
         }
+    }
+
+    public void logMessage (String login, String text) throws IOException {
+        writer = new BufferedWriter(new FileWriter("logs/history_"+login+".txt", true));
+        writer.write(text);
+        writer.newLine();
+        writer.flush();
+        writer.close();
     }
 }
