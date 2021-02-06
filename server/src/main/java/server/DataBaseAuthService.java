@@ -19,14 +19,11 @@ public class DataBaseAuthService implements AuthService {
     private static void disconnect () {
         try {
             stmt.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        try {
             connection.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
     }
 
     private static void prepareAllStatements () throws SQLException {
@@ -77,12 +74,6 @@ public class DataBaseAuthService implements AuthService {
         } finally {
             disconnect();
         }
-//        for (SimpleAuthService.UserData user : users) {
-//            if(user.login.equals(login) || user.nickname.equals(nickname)){
-//                return false;
-//            }
-//        }
-//        users.add(new SimpleAuthService.UserData(login, password, nickname));
         return true;
     }
 }
