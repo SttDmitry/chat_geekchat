@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.*;
 
 public class Server {
     private ServerSocket server;
@@ -18,8 +19,11 @@ public class Server {
     private List<ClientHandler> clients;
     private AuthService authService;
     private BufferedWriter writer;
+    private static final Logger logger = Logger.getLogger(Server.class.getName());
+
 
     public Server() {
+
         clients = new CopyOnWriteArrayList<>();
 //        authService = new DataBaseAuthService();
         authService = new SimpleAuthService();
@@ -27,11 +31,13 @@ public class Server {
 
         try {
             server = new ServerSocket(PORT);
-            System.out.println("Server started");
+//            System.out.println("Server started");
+            logger.info("Server started");
 
             while (true) {
                 socket = server.accept();
-                System.out.println("Client connected");
+//                System.out.println("Client connected");
+                logger.info("Client connected");
                 new ClientHandler(this, socket);
             }
 
@@ -57,6 +63,7 @@ public class Server {
 
     public void privateMsg(ClientHandler sender, String receiver, String msg) throws IOException {
         String message = String.format("[ %s ] to [ %s ]: %s", sender.getNickname(), receiver, msg);
+        logger.info(message);
         for (ClientHandler c : clients) {
             if (c.getNickname().equals(receiver)) {
                 logMessage(c.getLogin(), message);
@@ -102,6 +109,7 @@ public class Server {
         }
 
         String msg = sb.toString();
+        logger.info(msg);
 
         for (ClientHandler c : clients) {
             c.sendMsg(msg);

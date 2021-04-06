@@ -18,6 +18,7 @@ public class ClientHandler {
 
     public ClientHandler(Server server, Socket socket) {
 
+
         try {
             this.server = server;
             this.socket = socket;
